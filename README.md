@@ -72,8 +72,37 @@ If you prefer to run the app without Docker:
 - Docker uses MySQL from `docker-compose.yml`.
 - `APP_URL` should stay set to `http://assessment_question_two.com`.
 - Swagger docs use the same host as the app URL.
-- Docker sets `CACHE_STORE=redis` so cache reads stay fast and do not depend on MySQL.
-- You can keep `.env` aligned with Docker by setting `CACHE_STORE=redis` locally too.
+
+## Cache Store Options
+
+You can set `CACHE_STORE` to one of these values:
+
+- `file`
+- `database`
+- `redis`
+
+What each one means:
+
+- `file` stores cache data in `storage/framework/cache/data`
+- `database` stores cache data in the `cache` table in MySQL
+- `redis` stores cache data in Redis and is usually the fastest option
+
+Which one to use:
+
+- use `file` for the simplest local setup
+- use `database` if you want to inspect cache rows directly in MySQL
+- use `redis` if you want faster cache performance for the product index
+
+Example `.env` values:
+
+```env
+CACHE_STORE=file
+CACHE_STORE=database
+CACHE_STORE=redis
+```
+
+Docker uses `CACHE_STORE=redis` so cache reads stay fast and do not depend on MySQL.
+You can keep `.env` aligned with Docker by setting `CACHE_STORE=redis` locally too.
 
 ## Testing
 
