@@ -1,66 +1,178 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Assessment Question Two
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Laravel 11 API for products, categories, suppliers, and Sanctum authentication.
 
-## About Laravel
+## Requirements
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP 8.2 or higher
+- Composer
+- Node.js and npm
+- MySQL running locally
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Setup
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1. Clone or open the project.
+2. Install PHP dependencies:
+   ```bash
+   composer install
+   ```
+3. Install frontend dependencies:
+   ```bash
+   npm install
+   ```
+4. Copy the environment file if needed:
+   ```bash
+   copy .env.example .env
+   ```
+5. Configure your `.env` database values:
+   - `DB_CONNECTION=mysql`
+   - `DB_HOST=127.0.0.1`
+   - `DB_PORT=3306`
+   - `DB_DATABASE=ecommerce-yewrui`
+   - `DB_USERNAME=root`
+   - `DB_PASSWORD=`
+6. Generate the app key:
+   ```bash
+   php artisan key:generate
+   ```
+7. Run the migrations:
+   ```bash
+   php artisan migrate
+   ```
+8. Seed the database:
+   ```bash
+   php artisan db:seed
+   ```
+9. Start the app:
+   ```bash
+   php artisan serve
+   ```
 
-## Learning Laravel
+## Testing
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Run the feature test suite:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+```bash
+vendor/bin/phpunit --testsuite Feature
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Seeders
 
-## Laravel Sponsors
+The database seeder runs these 10 seeders:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+1. `AdminUserSeeder`
+2. `DemoUserSeeder`
+3. `CategorySeeder`
+4. `ClearanceCategorySeeder`
+5. `SupplierSeeder`
+6. `ExtraSupplierSeeder`
+7. `ProductSeeder`
+8. `LowStockProductSeeder`
+9. `InactiveProductSeeder`
+10. `ProductSupplierSeeder`
 
-### Premium Partners
+## Default Auth Data
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+- Admin email: `admin@example.com`
+- Demo user email: `demo@example.com`
+- Use the password you configure locally when creating test users
 
-## Contributing
+## API Endpoints
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Auth:
 
-## Code of Conduct
+- `POST /api/register`
+- `POST /api/login`
+- `GET /api/me`
+- `POST /api/logout`
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Products:
 
-## Security Vulnerabilities
+- `GET /api/products`
+- `POST /api/products`
+- `GET /api/products/{product}`
+- `PUT /api/products/{product}`
+- `PATCH /api/products/{product}`
+- `DELETE /api/products/{product}`
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## Swagger Docs
 
-## License
+Open the interactive API documentation here:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+http://127.0.0.1:8000/api/documentation
+```
+
+## Swagger Reference Payloads
+
+Use the Swagger UI for the full request payloads, example responses, and endpoint testing:
+
+- Open: `http://127.0.0.1:8000/api/documentation`
+- Base API path: `http://127.0.0.1:8000/api`
+- Auth header format: `Authorization: Bearer YOUR_TOKEN_HERE`
+
+The Swagger docs include:
+
+- register and login payloads
+- authenticated profile and logout examples
+- product list filters and pagination
+- create, update, show, and delete product examples
+- success response envelopes with `success` and `code`
+
+If you want a fast copy-paste reference, these are the main payloads:
+
+### Register
+
+```json
+{
+  "name": "John Doe",
+  "email": "john@example.com",
+  "password": "YOUR_PASSWORD",
+  "password_confirmation": "YOUR_PASSWORD"
+}
+```
+
+### Login
+
+```json
+{
+  "email": "john@example.com",
+  "password": "YOUR_PASSWORD"
+}
+```
+
+### Create Product
+
+```json
+{
+  "category_id": 1,
+  "supplier_ids": [1, 2],
+  "name": "Gaming Mouse",
+  "slug": "gaming-mouse",
+  "sku": "MOU-001",
+  "description": "Wireless gaming mouse",
+  "price": 99.9,
+  "sale_price": 79.9,
+  "stock_quantity": 20,
+  "image_path": null,
+  "is_active": true
+}
+```
+
+## Product Filters
+
+Use these query parameters on `GET /api/products`:
+
+- `category_id`
+- `min_price`
+- `max_price`
+- `stock_level` with `in_stock`, `out_of_stock`, or `low_stock`
+- `low_stock_threshold`
+- `per_page`
+
+## Notes
+
+- Product deletes are soft deletes.
+- API responses use the shared `success` and `code` envelope.
+- Validation uses Form Request classes.
+- Response formatting uses API Resources.
