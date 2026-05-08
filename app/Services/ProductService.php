@@ -9,41 +9,72 @@ use Illuminate\Database\Eloquent\Builder;
 
 class ProductService extends ResponseService
 {
+    private const LIST_CACHE_TTL = 600;
+    private const ITEM_CACHE_TTL = 600;
+
     public function __construct(
-        protected ProductRepositoryInterface $products
+        protected ProductRepositoryInterface $products,
+        protected CacheService $cache
     ) {
     }
 
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        $query = $this->products->query();
-        $query = $this->applyFilters($query, $filters);
+        $cacheKey = $this->cache->cacheKey('paginate:'.md5(json_encode([
+            'filters' => [
+                'category_id' => $filters['category_id'] ?? null,
+                'min_price' => $filters['min_price'] ?? null,
+                'max_price' => $filters['max_price'] ?? null,
+                'stock_level' => $filters['stock_level'] ?? null,
+                'low_stock_threshold' => $filters['low_stock_threshold'] ?? null,
+            ],
+            'per_page' => $perPage,
+        ], JSON_THROW_ON_ERROR)));
 
-        return $query->latest()->paginate($perPage)->withQueryString();
+        return $this->cache->remember($cacheKey, self::LIST_CACHE_TTL, function () use ($filters, $perPage) {
+            $query = $this->products->query();
+            $query = $this->applyFilters($query, $filters);
+
+            return $query->latest()->paginate($perPage)->withQueryString();
+        });
     }
 
     public function find(int $id): Product
     {
-        return $this->products->findById($id);
+        $cacheKey = $this->cache->cacheKey('find:'.$id);
+
+        return $this->cache->remember($cacheKey, self::ITEM_CACHE_TTL, fn () => $this->products->findById($id));
     }
 
     public function create(array $data): Product
     {
         [$productData, $supplierIds] = $this->mapProductData($data, true);
 
-        return $this->products->create($productData, $supplierIds);
+        $product = $this->products->create($productData, $supplierIds);
+
+        $this->cache->bumpVersion();
+
+        return $product;
     }
 
     public function update(Product $product, array $data): Product
     {
         [$productData, $supplierIds] = $this->mapProductData($data);
 
-        return $this->products->update($product, $productData, $supplierIds);
+        $product = $this->products->update($product, $productData, $supplierIds);
+
+        $this->cache->bumpVersion();
+
+        return $product;
     }
 
     public function delete(Product $product): bool
     {
-        return $this->products->delete($product);
+        $deleted = $this->products->delete($product);
+
+        $this->cache->bumpVersion();
+
+        return $deleted;
     }
 
     private function applyFilters(Builder $query, array $filters): Builder
@@ -105,4 +136,5 @@ class ProductService extends ResponseService
             $supplierIds,
         ];
     }
+
 }

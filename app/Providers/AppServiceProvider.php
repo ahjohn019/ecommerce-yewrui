@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Repositories\ProductRepository;
 use App\Repositories\ProductRepositoryInterface;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,6 +23,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        RateLimiter::for('auth', function ($request) {
+            return Limit::perMinute((int) config('api.rate_limits.auth.per_minute', 10))
+                ->by($request->ip());
+        });
+
+        RateLimiter::for('products', function ($request) {
+            return Limit::perMinute((int) config('api.rate_limits.products.per_minute', 60))
+                ->by($request->user()?->id ?: $request->ip());
+        });
     }
 }
