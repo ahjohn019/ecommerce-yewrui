@@ -19,7 +19,10 @@ services:
       DB_DATABASE: ${DB_DATABASE:-ecommerce-yewrui}
       DB_USERNAME: ${DB_USERNAME:-root}
       DB_PASSWORD: ${DB_PASSWORD:-root}
-      CACHE_STORE: ${CACHE_STORE:-file}
+      CACHE_STORE: ${CACHE_STORE:-redis}
+      REDIS_CLIENT: ${REDIS_CLIENT:-phpredis}
+      REDIS_HOST: redis
+      REDIS_PORT: ${REDIS_PORT:-6379}
       SESSION_DRIVER: ${SESSION_DRIVER:-database}
       QUEUE_CONNECTION: ${QUEUE_CONNECTION:-database}
       RUN_MIGRATIONS: "1"
@@ -27,6 +30,8 @@ services:
       - .:/var/www/html
     depends_on:
       mysql:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   vite:
@@ -56,5 +61,21 @@ services:
       timeout: 5s
       retries: 10
 
+  redis:
+    image: redis:7-alpine
+    container_name: assessment_question_two-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
 volumes:
   mysql-data:
+  redis-data:

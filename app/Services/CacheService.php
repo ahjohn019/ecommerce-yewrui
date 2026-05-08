@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Illuminate\Contracts\Cache\Repository as CacheRepository;
+use Illuminate\Cache\RedisStore;
 use Illuminate\Support\Facades\Log;
 
 class CacheService extends ResponseService
@@ -11,6 +12,8 @@ class CacheService extends ResponseService
     public const ITEM_CACHE_TTL = 600;
 
     private const CACHE_VERSION_KEY = 'products:cache:version';
+
+    private ?string $version = null;
 
     public function __construct(
         private readonly CacheRepository $cache
@@ -33,10 +36,11 @@ class CacheService extends ResponseService
         $elapsedMs = (hrtime(true) - $startedAt) / 1_000_000;
 
         if (config('app.debug')) {
-            Log::debug('Product cache '.($miss ? 'miss' : 'hit'), [
+            Log::debug('Product cache '.($miss ? 'miss' : 'hit').' via '.$this->cacheStoreName(), [
                 'key' => $cacheKey,
                 'ttl' => $ttl,
                 'elapsed_ms' => round($elapsedMs, 2),
+                'store' => $this->cacheStoreName(),
             ]);
         }
 
@@ -48,7 +52,8 @@ class CacheService extends ResponseService
      */
     public function bumpVersion(): void
     {
-        $this->cache->put(self::CACHE_VERSION_KEY, (string) microtime(true), now()->addDay());
+        $this->version = (string) microtime(true);
+        $this->cache->put(self::CACHE_VERSION_KEY, $this->version, now()->addDay());
     }
 
     /**
@@ -56,7 +61,13 @@ class CacheService extends ResponseService
      */
     public function version(): string
     {
-        return (string) $this->cache->get(self::CACHE_VERSION_KEY, '1');
+        if ($this->version !== null) {
+            return $this->version;
+        }
+
+        $this->version = (string) $this->cache->get(self::CACHE_VERSION_KEY, '1');
+
+        return $this->version;
     }
 
     /**
@@ -65,5 +76,14 @@ class CacheService extends ResponseService
     public function cacheKey(string $suffix): string
     {
         return 'products:'.$this->version().':'.$suffix;
+    }
+
+    private function cacheStoreName(): string
+    {
+        if ($this->cache->getStore() instanceof RedisStore) {
+            return 'redis';
+        }
+
+        return class_basename($this->cache->getStore());
     }
 }

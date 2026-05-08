@@ -72,8 +72,8 @@ If you prefer to run the app without Docker:
 - Docker uses MySQL from `docker-compose.yml`.
 - `APP_URL` should stay set to `http://assessment_question_two.com`.
 - Swagger docs use the same host as the app URL.
-- Docker sets `CACHE_STORE=file` so cache reads do not depend on MySQL.
-- You can keep `.env` aligned with Docker by setting `CACHE_STORE=file` locally too.
+- Docker sets `CACHE_STORE=redis` so cache reads stay fast and do not depend on MySQL.
+- You can keep `.env` aligned with Docker by setting `CACHE_STORE=redis` locally too.
 
 ## Testing
 
@@ -93,26 +93,6 @@ If you are running inside Docker:
 
 ```bash
 docker compose exec app vendor/bin/phpunit
-```
-
-Benchmark the product index cache. The command shows the `before index & cache`
-and `after index & cache` timings plus product/cache query counts for the same
-controller-style product list query:
-
-```bash
-php artisan products:benchmark
-```
-
-You can also pass filters and page size:
-
-```bash
-php artisan products:benchmark --search=mouse --category_id=1 --per-page=15
-```
-
-If you are running inside Docker:
-
-```bash
-docker compose exec app php artisan products:benchmark
 ```
 
 ## Seeders
@@ -236,4 +216,3 @@ Use these query parameters on `GET /api/products`:
 - API responses use the shared `success` and `code` envelope.
 - Validation uses Form Request classes.
 - Response formatting uses API Resources.
-- See [`benchmark.md`](C:/laragon/www/assessment_question_two/benchmark.md) for a short guide to the product cache benchmark command.

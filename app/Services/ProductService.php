@@ -17,7 +17,7 @@ class ProductService extends ResponseService
 
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
-        $cacheKey = $this->cache->cacheKey('paginate:'.md5(json_encode([
+        $cacheKey = 'paginate:'.md5(json_encode([
             'filters' => [
                 'search' => $filters['search'] ?? null,
                 'category_id' => $filters['category_id'] ?? null,
@@ -27,7 +27,7 @@ class ProductService extends ResponseService
                 'low_stock_threshold' => $filters['low_stock_threshold'] ?? null,
             ],
             'per_page' => $perPage,
-        ], JSON_THROW_ON_ERROR)));
+        ], JSON_THROW_ON_ERROR));
 
         return $this->cache->remember($cacheKey, CacheService::LIST_CACHE_TTL, function () use ($filters, $perPage) {
             $query = $this->products->query();
@@ -39,7 +39,7 @@ class ProductService extends ResponseService
 
     public function find(int $id): Product
     {
-        $cacheKey = $this->cache->cacheKey('find:'.$id);
+        $cacheKey = 'find:'.$id;
 
         return $this->cache->remember($cacheKey, CacheService::ITEM_CACHE_TTL, fn () => $this->products->findById($id));
     }

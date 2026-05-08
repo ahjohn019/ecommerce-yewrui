@@ -8,6 +8,7 @@ RUN apt-get update \
         libonig-dev \
         libzip-dev \
         libxml2-dev \
+        $PHPIZE_DEPS \
     && docker-php-ext-install \
         bcmath \
         intl \
@@ -16,6 +17,8 @@ RUN apt-get update \
         pdo_mysql \
         xml \
         zip \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
