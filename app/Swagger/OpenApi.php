@@ -10,7 +10,7 @@ use OpenApi\Attributes as OA;
     description: 'API documentation for authentication and product management.'
 )]
 #[OA\Server(
-    url: 'http://127.0.0.1:8000/api',
+    url: \L5_SWAGGER_CONST_HOST.'/api',
     description: 'Local development server'
 )]
 #[OA\SecurityScheme(

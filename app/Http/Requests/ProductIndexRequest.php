@@ -14,6 +14,7 @@ class ProductIndexRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'search' => ['sometimes', 'string', 'max:100'],
             'category_id' => ['sometimes', 'integer', 'exists:categories,id'],
             'min_price' => ['sometimes', 'numeric', 'min:0'],
             'max_price' => ['sometimes', 'numeric', 'min:0'],

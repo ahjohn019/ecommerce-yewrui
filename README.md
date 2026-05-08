@@ -4,49 +4,76 @@ Laravel 11 API for products, categories, suppliers, and Sanctum authentication.
 
 ## Requirements
 
-- PHP 8.2 or higher
-- Composer
+- Docker and Docker Compose
 - Node.js and npm
-- MySQL running locally
+- Composer if you want to run Laravel locally outside Docker
 
-## Setup
+## Quick Start
 
-1. Clone or open the project.
-2. Install PHP dependencies:
-   ```bash
-   composer install
+1. Add this to your hosts file:
+   ```text
+   127.0.0.1 assessment_question_two.com
    ```
-3. Install frontend dependencies:
-   ```bash
-   npm install
-   ```
-4. Copy the environment file if needed:
+2. Copy the environment file if needed:
    ```bash
    copy .env.example .env
    ```
-5. Configure your `.env` database values:
-   - `DB_CONNECTION=mysql`
-   - `DB_HOST=127.0.0.1`
-   - `DB_PORT=3306`
-   - `DB_DATABASE=ecommerce-yewrui`
-   - `DB_USERNAME=root`
-   - `DB_PASSWORD=`
-6. Generate the app key:
+3. Start the containers:
+   ```bash
+   docker compose up --build
+   ```
+4. Run migrations and seed data:
+   ```bash
+   docker compose exec app php artisan migrate --seed
+   ```
+5. If you need a fresh reset:
+   ```bash
+   docker compose exec app php artisan migrate:fresh --seed
+   ```
+
+The app is available at:
+
+- API: `http://assessment_question_two.com/`
+- Swagger docs: `http://assessment_question_two.com/api/documentation`
+- Vite: `http://localhost:5173`
+
+## Local Setup
+
+If you prefer to run the app without Docker:
+
+1. Install PHP dependencies:
+   ```bash
+   composer install
+   ```
+2. Install frontend dependencies:
+   ```bash
+   npm install
+   ```
+3. Configure your `.env` database values for your local MySQL setup.
+4. Generate the app key:
    ```bash
    php artisan key:generate
    ```
-7. Run the migrations:
+5. Run the migrations:
    ```bash
    php artisan migrate
    ```
-8. Seed the database:
+6. Seed the database:
    ```bash
    php artisan db:seed
    ```
-9. Start the app:
+7. Start the app:
    ```bash
    php artisan serve
    ```
+
+## Docker Notes
+
+- Docker uses MySQL from `docker-compose.yml`.
+- `APP_URL` should stay set to `http://assessment_question_two.com`.
+- Swagger docs use the same host as the app URL.
+- Docker sets `CACHE_STORE=file` so cache reads do not depend on MySQL.
+- You can keep `.env` aligned with Docker by setting `CACHE_STORE=file` locally too.
 
 ## Testing
 
@@ -56,9 +83,41 @@ Run the feature test suite:
 vendor/bin/phpunit --testsuite Feature
 ```
 
+Run all tests:
+
+```bash
+vendor/bin/phpunit
+```
+
+If you are running inside Docker:
+
+```bash
+docker compose exec app vendor/bin/phpunit
+```
+
+Benchmark the product index cache. The command shows the `before index & cache`
+and `after index & cache` timings plus product/cache query counts for the same
+controller-style product list query:
+
+```bash
+php artisan products:benchmark
+```
+
+You can also pass filters and page size:
+
+```bash
+php artisan products:benchmark --search=mouse --category_id=1 --per-page=15
+```
+
+If you are running inside Docker:
+
+```bash
+docker compose exec app php artisan products:benchmark
+```
+
 ## Seeders
 
-The database seeder runs these 10 seeders:
+The database seeder runs these 11 seeders:
 
 1. `AdminUserSeeder`
 2. `DemoUserSeeder`
@@ -67,9 +126,10 @@ The database seeder runs these 10 seeders:
 5. `SupplierSeeder`
 6. `ExtraSupplierSeeder`
 7. `ProductSeeder`
-8. `LowStockProductSeeder`
-9. `InactiveProductSeeder`
-10. `ProductSupplierSeeder`
+8. `BenchmarkProductSeeder`
+9. `LowStockProductSeeder`
+10. `InactiveProductSeeder`
+11. `ProductSupplierSeeder`
 
 ## Default Auth Data
 
@@ -100,15 +160,14 @@ Products:
 Open the interactive API documentation here:
 
 ```bash
-http://127.0.0.1:8000/api/documentation
+http://assessment_question_two.com/api/documentation
 ```
 
-## Swagger Reference Payloads
+## Swagger Payloads
 
-Use the Swagger UI for the full request payloads, example responses, and endpoint testing:
+Use the Swagger UI for request payloads, example responses, and endpoint testing.
 
-- Open: `http://127.0.0.1:8000/api/documentation`
-- Base API path: `http://127.0.0.1:8000/api`
+- Base API path: `http://assessment_question_two.com/api`
 - Auth header format: `Authorization: Bearer YOUR_TOKEN_HERE`
 
 The Swagger docs include:
@@ -163,6 +222,7 @@ If you want a fast copy-paste reference, these are the main payloads:
 
 Use these query parameters on `GET /api/products`:
 
+- `search`
 - `category_id`
 - `min_price`
 - `max_price`
@@ -176,3 +236,4 @@ Use these query parameters on `GET /api/products`:
 - API responses use the shared `success` and `code` envelope.
 - Validation uses Form Request classes.
 - Response formatting uses API Resources.
+- See [`benchmark.md`](C:/laragon/www/assessment_question_two/benchmark.md) for a short guide to the product cache benchmark command.

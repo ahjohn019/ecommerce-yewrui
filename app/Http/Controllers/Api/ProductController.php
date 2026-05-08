@@ -26,6 +26,7 @@ class ProductController extends Controller
      *     tags={"Products"},
      *     summary="List products",
      *     security={{"sanctum": {}}},
+     *     @OA\Parameter(name="search", in="query", @OA\Schema(type="string")),
      *     @OA\Parameter(name="category_id", in="query", @OA\Schema(type="integer")),
      *     @OA\Parameter(name="min_price", in="query", @OA\Schema(type="number", format="float")),
      *     @OA\Parameter(name="max_price", in="query", @OA\Schema(type="number", format="float")),

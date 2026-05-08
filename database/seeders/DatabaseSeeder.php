@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             SupplierSeeder::class,
             ExtraSupplierSeeder::class,
             ProductSeeder::class,
+            BenchmarkProductSeeder::class,
             LowStockProductSeeder::class,
             InactiveProductSeeder::class,
             ProductSupplierSeeder::class,

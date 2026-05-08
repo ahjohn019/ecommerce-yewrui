@@ -9,9 +9,6 @@ use Illuminate\Database\Eloquent\Builder;
 
 class ProductService extends ResponseService
 {
-    private const LIST_CACHE_TTL = 600;
-    private const ITEM_CACHE_TTL = 600;
-
     public function __construct(
         protected ProductRepositoryInterface $products,
         protected CacheService $cache
@@ -22,6 +19,7 @@ class ProductService extends ResponseService
     {
         $cacheKey = $this->cache->cacheKey('paginate:'.md5(json_encode([
             'filters' => [
+                'search' => $filters['search'] ?? null,
                 'category_id' => $filters['category_id'] ?? null,
                 'min_price' => $filters['min_price'] ?? null,
                 'max_price' => $filters['max_price'] ?? null,
@@ -31,7 +29,7 @@ class ProductService extends ResponseService
             'per_page' => $perPage,
         ], JSON_THROW_ON_ERROR)));
 
-        return $this->cache->remember($cacheKey, self::LIST_CACHE_TTL, function () use ($filters, $perPage) {
+        return $this->cache->remember($cacheKey, CacheService::LIST_CACHE_TTL, function () use ($filters, $perPage) {
             $query = $this->products->query();
             $query = $this->applyFilters($query, $filters);
 
@@ -43,7 +41,7 @@ class ProductService extends ResponseService
     {
         $cacheKey = $this->cache->cacheKey('find:'.$id);
 
-        return $this->cache->remember($cacheKey, self::ITEM_CACHE_TTL, fn () => $this->products->findById($id));
+        return $this->cache->remember($cacheKey, CacheService::ITEM_CACHE_TTL, fn () => $this->products->findById($id));
     }
 
     public function create(array $data): Product
@@ -79,6 +77,10 @@ class ProductService extends ResponseService
 
     private function applyFilters(Builder $query, array $filters): Builder
     {
+        if (filled($filters['search'] ?? null)) {
+            $query = $this->applySearch($query, (string) $filters['search']);
+        }
+
         if (! empty($filters['category_id'])) {
             $query->where('category_id', $filters['category_id']);
         }
@@ -106,6 +108,11 @@ class ProductService extends ResponseService
         }
 
         return $query;
+    }
+
+    private function applySearch(Builder $query, string $search): Builder
+    {
+        return $query->whereFullText(['name', 'description'], $search);
     }
 
     private function mapProductData(array $data, bool $isCreate = false): array
