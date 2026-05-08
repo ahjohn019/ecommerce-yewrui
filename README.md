@@ -115,7 +115,8 @@ The database seeder runs these 11 seeders:
 
 - Admin email: `admin@example.com`
 - Demo user email: `demo@example.com`
-- Use the password you configure locally when creating test users
+- Demo user password: `password123`
+- Use the demo account to log in, copy the Bearer token, and click `Authorize` in Swagger UI
 
 ## API Endpoints
 
@@ -216,3 +217,25 @@ Use these query parameters on `GET /api/products`:
 - API responses use the shared `success` and `code` envelope.
 - Validation uses Form Request classes.
 - Response formatting uses API Resources.
+
+## Product Cache Log
+
+To check product cache behavior, open:
+
+```text
+storage/logs/laravel.log
+```
+
+Look for debug lines from `CacheService::remember()`, such as:
+
+```text
+[debug] Product cache hit via redis {"key":"products:...","ttl":600,"elapsed_ms":0.52,"store":"redis"}
+[debug] Product cache miss via redis {"key":"products:...","ttl":600,"elapsed_ms":28.90,"store":"redis"}
+```
+
+What to check:
+
+- `hit` means the product data came from cache
+- `miss` means Laravel rebuilt the result from the database
+- `elapsed_ms` shows how long the cache call took
+- `store` shows the cache backend, such as `redis`

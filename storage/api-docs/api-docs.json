@@ -301,10 +301,15 @@
                 "tags": ["Products"],
                 "summary": "List products",
                 "security": [{ "sanctum": [] }],
-                "parameters": [
-                    {
-                        "name": "category_id",
-                        "in": "query",
+                  "parameters": [
+                      {
+                          "name": "search",
+                          "in": "query",
+                          "schema": { "type": "string" }
+                      },
+                      {
+                          "name": "category_id",
+                          "in": "query",
                         "schema": { "type": "integer" }
                     },
                     {

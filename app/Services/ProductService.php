@@ -17,6 +17,7 @@ class ProductService extends ResponseService
 
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
+        // Cache each filtered product page separately so repeated index requests stay fast.
         $cacheKey = 'paginate:'.md5(json_encode([
             'filters' => [
                 'search' => $filters['search'] ?? null,
