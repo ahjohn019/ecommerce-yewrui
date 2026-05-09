@@ -7,7 +7,7 @@ use OpenApi\Attributes as OA;
 #[OA\Info(
     title: 'Assessment Question Two API',
     version: '1.0.0',
-    description: 'API documentation for authentication and product management.'
+    description: 'API documentation for authentication, product, and order management.'
 )]
 #[OA\Server(
     url: \L5_SWAGGER_CONST_HOST.'/api',
